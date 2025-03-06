@@ -1,0 +1,92 @@
+{
+  "name": "electron-transcription-app",
+  "version": "1.0.0",
+  "description": "Video transcription app using Whisper.cpp",
+  "main": "electron.js",
+  "author": {
+    "name": "Stan",
+    "email": "finedivstudio@gmail.com"
+  },
+  "scripts": {
+    "start": "npm run build && electron .",
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "prepackage": "node create-icons.js",
+    "package": "npm run build && electron-builder build",
+    "download-whisper": "node scripts/download-whisper-binary.js",
+    "build-whisper": "node scripts/build-whisper.js",
+    "check-binary": "node scripts/check-binary.js",
+    "check-source": "node scripts/check-whisper-source.js",
+    "fix-whisper-git": "node scripts/check-whisper-source.js --fix",
+    "test-transcription": "node scripts/test-transcription.js",
+    "create-launcher": "node scripts/create-launcher.js",
+    "postinstall": "npm run download-whisper && electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.electron.transcription-app",
+    "productName": "Video Transcription App",
+    "files": [
+      "public/**/*",
+      "!public/build/*.map",
+      "transcription/**/*",
+      "electron.js",
+      "preload.js",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/vendor/**"
+    ],
+    "directories": {
+      "buildResources": "resources",
+      "output": "dist"
+    },
+    "extraResources": [
+      {
+        "from": "vendor",
+        "to": "vendor",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": {
+      "smartUnpack": true
+    },
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**/*"
+    ],
+    "mac": {
+      "target": "dir",
+      "icon": "resources/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "dir",
+      "icon": "resources/icon.ico"
+    },
+    "linux": {
+      "target": "dir",
+      "icon": "resources/icon.png",
+      "category": "Utility"
+    }
+  },
+  "dependencies": {
+    "electron-log": "^4.4.8",
+    "ffmpeg-static": "^5.2.0",
+    "tar": "^6.1.13",
+    "whisper": "^0.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "electron": "^20.3.12",
+    "electron-builder": "^23.6.0",
+    "rollup": "^2.79.2",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-svelte": "^7.2.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "svelte": "^3.59.2"
+  }
+}
