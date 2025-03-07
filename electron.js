@@ -81,7 +81,11 @@ app.on("activate", () => {
 ipcMain.handle("select-video", async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ["openFile"],
-    filters: [{ name: "Videos", extensions: ["mp4", "webm", "mov", "avi"] }],
+    filters: [
+      { name: "Media Files", extensions: ["mp4", "webm", "mov", "avi", "mp3", "wav", "m4a", "ogg"] },
+      { name: "Videos", extensions: ["mp4", "webm", "mov", "avi"] },
+      { name: "Audio", extensions: ["mp3", "wav", "m4a", "ogg"] },
+    ],
   });
 
   if (!result.canceled) {

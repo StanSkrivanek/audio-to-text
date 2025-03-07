@@ -56,18 +56,25 @@
     });
   });
 
+  // Helper function to determine if it's a video file
+  function isVideoFile(filePath) {
+    if (!filePath) return false;
+    const ext = filePath.toLowerCase().split(".").pop();
+    return ["mp4", "webm", "mov", "avi", "mkv"].includes(ext);
+  }
+
   async function selectVideo() {
     try {
       const filePath = await window.electronAPI.selectVideo();
       if (filePath) {
         videoPath = filePath;
-        // Use a properly encoded file URL for local videos
+        // Use a properly encoded file URL for local media
         videoUrl = `file://${encodeURIComponent(videoPath).replace(/%3A/g, ":").replace(/%5C/g, "\\").replace(/%2F/g, "/")}`;
         transcript = "";
         errorMessage = "";
       }
     } catch (error) {
-      errorMessage = `Error selecting video: ${error.message}`;
+      errorMessage = `Error selecting file: ${error.message}`;
     }
   }
 
@@ -235,7 +242,7 @@
     <button
       on:click={selectVideo}
       disabled={isProcessing || !whisperStatus.initialized}>
-      Select Video File
+      Select Media File
     </button>
 
     {#if videoPath}
@@ -247,20 +254,28 @@
     {/if}
   </div>
 
-  <!-- Video Preview Section -->
+  <!-- Media Preview Section -->
   {#if videoPath}
     <div class="video-preview">
-      <h2>Video Preview</h2>
+      <h2>Media Preview</h2>
 
       <!-- For local file viewing in Electron -->
       <div class="video-container">
-        <video
-          controls
-          width="100%">
-          <source src={videoUrl} />
-          <track kind="captions" src="captions.vtt" srclang="en" label="English" default />
-          Your browser does not support the video tag.
-        </video>
+        {#if isVideoFile(videoPath)}
+          <video
+            controls
+            width="100%">
+            <source src={videoUrl} />
+            Your browser does not support the video tag.
+          </video>
+        {:else}
+          <audio
+            controls
+            width="100%">
+            <source src={videoUrl} />
+            Your browser does not support the audio tag.
+          </audio>
+        {/if}
       </div>
 
       <button

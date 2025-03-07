@@ -696,11 +696,11 @@ async function buildWhisper() {
 }
 
 /**
- * Transcribe a video file using Whisper.cpp
- * @param {string} videoPath - Path to the video file
+ * Transcribe a media file (video or audio) using Whisper.cpp
+ * @param {string} mediaPath - Path to the video or audio file
  * @returns {Promise<Object>} - Transcription result
  */
-async function transcribeVideo(videoPath) {
+async function transcribeVideo(mediaPath) {
   try {
     const isInitialized = await initializeWhisper();
     if (!isInitialized) {
@@ -713,8 +713,14 @@ async function transcribeVideo(videoPath) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
 
+    // Check if it's already an audio file
+    const fileExt = path.extname(mediaPath).toLowerCase();
+    const isAudioFile = [".mp3", ".wav", ".m4a", ".ogg", ".flac"].includes(fileExt);
+
+    log.info(`Processing ${isAudioFile ? "audio" : "video"} file: ${mediaPath}`);
+
     // Generate unique filenames
-    const baseName = path.basename(videoPath, path.extname(videoPath));
+    const baseName = path.basename(mediaPath, path.extname(mediaPath));
     const timestamp = Date.now();
     const audioFile = `${baseName}-${timestamp}.wav`;
     const audioPath = path.join(tempDir, audioFile);
@@ -726,7 +732,7 @@ async function transcribeVideo(videoPath) {
       // In packaged app, try system ffmpeg first
       try {
         await execPromise("ffmpeg -version");
-        ffmpegCommand = `ffmpeg -i "${videoPath}" -vn -acodec pcm_s16le -ar 16000 -ac 1 "${audioPath}"`;
+        ffmpegCommand = `ffmpeg -i "${mediaPath}" -vn -acodec pcm_s16le -ar 16000 -ac 1 "${audioPath}"`;
         log.info("Using system ffmpeg");
       } catch (e) {
         // If system ffmpeg fails, try paths in packaged app
@@ -742,7 +748,7 @@ async function transcribeVideo(videoPath) {
             }
           }
 
-          ffmpegCommand = `"${possibleFfmpegPath}" -i "${videoPath}" -vn -acodec pcm_s16le -ar 16000 -ac 1 "${audioPath}"`;
+          ffmpegCommand = `"${possibleFfmpegPath}" -i "${mediaPath}" -vn -acodec pcm_s16le -ar 16000 -ac 1 "${audioPath}"`;
           log.info(`Using ffmpeg from: ${possibleFfmpegPath}`);
         } else {
           throw new Error("Could not find a working ffmpeg binary");
@@ -750,7 +756,7 @@ async function transcribeVideo(videoPath) {
       }
     } else {
       // In development, use ffmpeg-static
-      ffmpegCommand = `"${ffmpegPath}" -i "${videoPath}" -vn -acodec pcm_s16le -ar 16000 -ac 1 "${audioPath}"`;
+      ffmpegCommand = `"${ffmpegPath}" -i "${mediaPath}" -vn -acodec pcm_s16le -ar 16000 -ac 1 "${audioPath}"`;
       log.info(`Using ffmpeg-static from: ${ffmpegPath}`);
     }
 
