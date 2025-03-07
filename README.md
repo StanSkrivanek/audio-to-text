@@ -36,7 +36,7 @@ Download the latest release for your platform from the [Releases](https://github
 
    ```sh
    git clone `github project URL`
-   cd electron-transcription-app
+   cd `do app folder`
    ```
 
 2. Install dependencies:
