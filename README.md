@@ -13,15 +13,8 @@ An Electron desktop application for transcribing videos and audio files using Wh
 - Cross-platform support (Windows, macOS, Linux)
 - Fast transcription using Whisper.cpp optimized library
 
-## Installation
 
-### Pre-built Binaries
-
-Download the latest release for your platform from the [Releases](https://github.com/yourusername/electron-transcription-app/releases) page.
-
-### Build from Source
-
-#### Prerequisites
+### Prerequisites
 
 - Node.js 14.x or higher
 - npm 6.x or higher
@@ -90,8 +83,6 @@ The application includes several utility scripts for development and maintenance
 | `npm run check-source`       | Checks if the Whisper.cpp source code is properly downloaded                    |
 | `npm run test-transcription` | Runs a test transcription with a sample audio file to verify functionality      |
 | `npm run create-launcher`    | Creates platform-specific launcher scripts for Whisper.cpp binary               |
-
-## Troubleshooting
 
 ### Initialization Issues
 
