@@ -59,9 +59,9 @@ Download the latest release for your platform from the [Releases](https://github
 
 5. Package the application for distribution:
 
-  ```sh
-   npm package
-   ```
+```sh
+ npm package
+```
 
 ## Usage
 
@@ -72,6 +72,26 @@ Download the latest release for your platform from the [Releases](https://github
 5. Click "Generate Transcript" to start transcribing.
 6. Once complete, the transcript will appear in the window.
 7. Click "Save Transcript" to save the result as a text file.
+
+## Available Scripts
+
+The application includes several utility scripts for development and maintenance:
+
+| Script                       | Description                                                                     |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| `npm run start`              | Builds the app and launches it in development mode                              |
+| `npm run dev`                | Runs the app in development mode with hot reload                                |
+| `npm run build`              | Compiles the frontend UI using Rollup                                           |
+| `npm run prepackage`         | Generates app icons (runs automatically before packaging)                       |
+| `npm run package`            | Builds and packages the app for distribution using electron-builder             |
+| `npm run download-whisper`   | Downloads the pre-compiled Whisper.cpp binary if available for your platform    |
+| `npm run build-whisper`      | Builds Whisper.cpp from source code when pre-compiled binaries aren't available |
+| `npm run check-binary`       | Verifies that the Whisper.cpp binary is properly installed and executable       |
+| `npm run check-source`       | Checks if the Whisper.cpp source code is properly downloaded                    |
+| `npm run test-transcription` | Runs a test transcription with a sample audio file to verify functionality      |
+| `npm run create-launcher`    | Creates platform-specific launcher scripts for Whisper.cpp binary               |
+
+## Troubleshooting
 
 ### Initialization Issues
 
@@ -117,26 +137,15 @@ This will perform a diagnostic test and show the exact command being used.
 
 ### Project Structure
 
-This will perform a diagnostic test and show the exact command being used.
-
-## Technical Details
-
-- Built with Electron and Svelte
-- Uses Whisper.cpp for transcription (<https://github.com/ggerganov/whisper.cpp>)
-- FFmpeg for audio extraction
-- Models are automatically downloaded at first run
-
-### Project Structure
-
 electron-transcription-app/
-    ├── public/ # Static web assets
-    ├── resources/ # Icons and resources
-    ├── scripts/ # Helper scripts
-    ├── src/ # Svelte source code
-    ├── transcription/ # Transcription logic
-    ├── vendor/ # Whisper.cpp and models
-    ├── electron.js # Main process
-    └── preload.js # Preload script
+├── public/ # Static web assets
+├── resources/ # Icons and resources
+├── scripts/ # Helper scripts
+├── src/ # Svelte source code
+├── transcription/ # Transcription logic
+├── vendor/ # Whisper.cpp and models
+├── electron.js # Main process
+└── preload.js # Preload script
 
 ## Performance Tips
 

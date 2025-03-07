@@ -3,11 +3,12 @@ const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const { transcribeVideo, initializeWhisper } = require("./transcription/transcribe");
 const log = require("electron-log");
+const fs = require("fs");
 
 let mainWindow;
 let whisperInitialized = false;
 
-// Add this function to log important paths for debugging
+// Enhanced resource path logging for better cross-platform debugging
 function logResourcePaths() {
   const paths = {
     execPath: app.getPath("exe"),
@@ -15,9 +16,25 @@ function logResourcePaths() {
     userData: app.getPath("userData"),
     temp: app.getPath("temp"),
     resourcesPath: process.resourcesPath || "Not available",
+    platform: process.platform,
+    arch: process.arch,
+    pathSeparator: path.sep,
+    // Add platform-specific path checks
+    vendorPath: path.join(process.resourcesPath || app.getAppPath(), "vendor"),
+    ffmpegPackagedPath: path.join(process.resourcesPath || "", "app.asar.unpacked", "node_modules", "ffmpeg-static", process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg"),
   };
 
   log.info("App resource paths:", paths);
+
+  // Check existence of critical paths for early detection of issues
+  if (process.resourcesPath) {
+    const criticalPaths = [paths.vendorPath, path.join(paths.vendorPath, "whisper.cpp"), path.join(paths.vendorPath, "models")];
+
+    log.info("Checking critical paths:");
+    criticalPaths.forEach((p) => {
+      log.info(`${p}: ${fs.existsSync(p) ? "exists" : "missing"}`);
+    });
+  }
 }
 
 function createWindow() {
@@ -106,6 +123,21 @@ ipcMain.handle("initialize-whisper", async () => {
     return { initialized: whisperInitialized };
   } catch (error) {
     log.error("Manual Whisper initialization failed:", error);
+    return {
+      initialized: false,
+      error: error.message,
+    };
+  }
+});
+
+// Add the missing handler that App.svelte references
+ipcMain.handle("initialize-whisper-with-options", async (event, options) => {
+  try {
+    // Pass options to initialization function
+    whisperInitialized = await initializeWhisper(false, options);
+    return { initialized: whisperInitialized };
+  } catch (error) {
+    log.error("Whisper initialization with options failed:", error);
     return {
       initialized: false,
       error: error.message,

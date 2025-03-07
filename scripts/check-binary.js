@@ -120,7 +120,10 @@ for (const method of executionMethods) {
   console.log(`Options: ${JSON.stringify(method.options)}`);
 
   try {
-    const output = execSync(method.command, method.options);
+    // Fix the variable reference for binary name
+    const binaryName = path.basename(binaryPath);
+
+    const output = execSync(method.command.replace("${binaryName}", binaryName), method.options);
     console.log("✅ Command executed successfully!");
     console.log("Output sample:");
     console.log(output.toString().split("\n").slice(0, 3).join("\n") + "...");

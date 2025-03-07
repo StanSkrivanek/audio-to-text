@@ -546,6 +546,7 @@ async function downloadModelWithPythonScript() {
   return true;
 }
 
+// Optimize the findAndCopyBinary function - it references findBinary which is missing
 async function findAndCopyBinary(buildDir) {
   const binaryNames = [
     { name: os.platform() === "win32" ? "whisper-cli.exe" : "whisper-cli", isNew: true },
@@ -588,9 +589,32 @@ async function findAndCopyBinary(buildDir) {
 
   // Deep search if we still haven't found anything
   if (!builtBinary) {
-    // ...existing deep search code...
+    // Replace the non-existent findBinary function with a proper implementation
+    function findBinary(directory, targetName) {
+      if (!fs.existsSync(directory)) return null;
 
-    // Add logic to search for both binary names
+      try {
+        const files = fs.readdirSync(directory);
+
+        for (const file of files) {
+          const fullPath = path.join(directory, file);
+          const stats = fs.statSync(fullPath);
+
+          if (stats.isDirectory()) {
+            // Recursive search in subdirectories
+            const found = findBinary(fullPath, targetName);
+            if (found) return found;
+          } else if (file === targetName) {
+            return fullPath;
+          }
+        }
+      } catch (err) {
+        log.warn(`Error searching directory ${directory}:`, err);
+      }
+
+      return null;
+    }
+
     for (const { name } of binaryNames) {
       const found = findBinary(buildDir, name);
       if (found) {
@@ -626,6 +650,7 @@ async function findAndCopyBinary(buildDir) {
   return false;
 }
 
+// Fix the missing variable reference in buildWhisper function
 async function buildWhisper() {
   log.info("Building Whisper...");
   try {
@@ -684,6 +709,9 @@ async function buildWhisper() {
       } catch (listError) {
         log.error("Error listing build directory:", listError);
       }
+
+      // Fix the undefined variable
+      const possibleBinaryLocations = possibleLocations.map((loc) => binaryNames.map((bin) => path.join(loc, bin.name))).flat();
 
       throw new Error(`Built binary not found. Checked: ${possibleBinaryLocations.join(", ")}`);
     }
