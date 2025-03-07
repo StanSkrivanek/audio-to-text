@@ -266,6 +266,7 @@
             controls
             width="100%">
             <source src={videoUrl} />
+            <track kind="captions" src="captions.vtt" srclang="en" label="English">
             Your browser does not support the video tag.
           </video>
         {:else}
