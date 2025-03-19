@@ -37,22 +37,16 @@ An Electron desktop application for transcribing videos and audio files using Wh
    npm install
    ```
 
-3. Build the project:
+3. Start the application in local environment:
 
    ```sh
-   npm run build
+   npm run start
    ```
 
-4. Start the application in local environment:
-
-   ```sh
-   npm start
-   ```
-
-5. Package the application for distribution:
+4. Package the application for distribution:
 
 ```sh
- npm package
+ npm run package
 ```
 
 ## Setup
