@@ -20,7 +20,8 @@
     "fix-whisper-git": "node scripts/check-whisper-source.js --fix",
     "test-transcription": "node scripts/test-transcription.js",
     "create-launcher": "node scripts/create-launcher.js",
-    "postinstall": "npm run download-whisper && electron-builder install-app-deps"
+    "setup": "node scripts/download-whisper-binary.js",
+    "postinstall": "npm run setup"
   },
   "build": {
     "appId": "com.electron.transcription-app",

@@ -13,7 +13,6 @@ An Electron desktop application for transcribing videos and audio files using Wh
 - Cross-platform support (Windows, macOS, Linux)
 - Fast transcription using Whisper.cpp optimized library
 
-
 ### Prerequisites
 
 - Node.js 14.x or higher
@@ -54,6 +53,22 @@ An Electron desktop application for transcribing videos and audio files using Wh
 
 ```sh
  npm package
+```
+
+## Setup
+
+The application requires Whisper for transcription. When you run `npm install`, it will automatically try to download the required binaries.
+
+If automatic setup fails, you can run manually:
+
+```bash
+npm run setup
+```
+
+For manual build from source:
+
+```bash
+node scripts/build-whisper.js
 ```
 
 ## Usage
