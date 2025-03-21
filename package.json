@@ -8,16 +8,14 @@
     "email": "finedivstudio@gmail.com"
   },
   "scripts": {
-    "start": "npm run build && electron .",
+    "start": "npm run build && npx electron .",
     "dev": "rollup -c -w",
     "build": "rollup -c",
     "prepackage": "node create-icons.js",
     "package": "npm run build && electron-builder build",
-    "download-whisper": "node scripts/download-whisper-binary.js",
     "build-whisper": "node scripts/build-whisper.js",
     "check-binary": "node scripts/check-binary.js",
-    "check-source": "node scripts/check-whisper-source.js",
-    "fix-whisper-git": "node scripts/check-whisper-source.js --fix",
+    "check-whisper-source": "node scripts/check-whisper-source.js",
     "test-transcription": "node scripts/test-transcription.js",
     "create-launcher": "node scripts/create-launcher.js",
     "setup": "node scripts/download-whisper-binary.js",
