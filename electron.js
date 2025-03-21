@@ -5,6 +5,10 @@ const { transcribeVideo, initializeWhisper } = require("./transcription/transcri
 const log = require("electron-log");
 const fs = require("fs");
 
+// Configure logging
+log.transports.file.level = "info";
+log.info("Application starting...");
+
 let mainWindow;
 let whisperInitialized = false;
 
@@ -42,12 +46,13 @@ function createWindow() {
   logResourcePaths();
 
   mainWindow = new BrowserWindow({
-    width: 1000,
+    width: 1200,
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
+      enableRemoteModule: false,
     },
   });
 
@@ -56,6 +61,19 @@ function createWindow() {
   const startUrl = process.env.NODE_ENV === "development" ? "http://localhost:5000" : `file://${path.join(__dirname, "public/index.html")}`;
 
   mainWindow.loadURL(startUrl);
+
+  // Open DevTools in development mode
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.webContents.openDevTools();
+  }
+
+  // Handle window close event
+  mainWindow.on("closed", () => {
+    // Dereference the window object
+    mainWindow = null;
+  });
+
+  log.info("Main window created");
 
   // Initialize Whisper in the background
   initializeWhisperInBackground();
@@ -84,14 +102,33 @@ async function initializeWhisperInBackground() {
   }
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+  // On macOS it's common to re-create a window when the dock icon is clicked
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
 });
 
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+// Quit when all windows are closed, except on macOS
+app.on("window-all-closed", () => {
+  log.info("All windows closed");
+  // Force quit on all platforms to ensure app doesn't stay in console
+  log.info("Quitting application");
+  app.quit();
+});
+
+// On macOS, explicitly quit when requested via the menu or Cmd+Q
+app.on("before-quit", () => {
+  log.info("Application is quitting");
+  // Use exit(0) as a fallback if app.quit() doesn't fully terminate
+  setTimeout(() => {
+    log.info("Forcing exit after timeout");
+    process.exit(0);
+  }, 500);
 });
 
 // Handle video file selection
@@ -182,4 +219,15 @@ ipcMain.handle("transcribe-video", async (event, filePath) => {
 
     return { error: error.message };
   }
+});
+
+// Add additional IPC handlers here as needed
+ipcMain.on("app-quit", () => {
+  log.info("Quit requested via IPC");
+  app.exit(0); // Force immediate exit
+});
+
+// Handle any uncaught exceptions
+process.on("uncaughtException", (error) => {
+  log.error("Uncaught exception:", error);
 });

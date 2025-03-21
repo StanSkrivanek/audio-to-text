@@ -17,4 +17,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Event listeners
   onWhisperStatus: (callback) => ipcRenderer.on("whisper-status", (_, data) => callback(data)),
   onTranscriptionProgress: (callback) => ipcRenderer.on("transcription-progress", (_, data) => callback(data)),
+
+  // Add an explicit quit function
+  quitApp: () => {
+    ipcRenderer.send("app-quit");
+  },
 });
