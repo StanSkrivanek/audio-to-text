@@ -93,8 +93,19 @@ async function downloadWhisperBinary() {
             return;
           }
 
+          const totalBytes = parseInt(res.headers["content-length"], 10);
+          let downloadedBytes = 0;
+
           const fileStream = fs.createWriteStream(binaryPath);
           res.pipe(fileStream);
+
+          res.on("data", (chunk) => {
+            downloadedBytes += chunk.length;
+            const percent = ((downloadedBytes / totalBytes) * 100).toFixed(2);
+            process.stdout.clearLine();
+            process.stdout.cursorTo(0);
+            process.stdout.write(`Downloading Whisper binary: ${percent}%`);
+          });
 
           fileStream.on("finish", () => {
             fileStream.close();
@@ -104,7 +115,7 @@ async function downloadWhisperBinary() {
               fs.chmodSync(binaryPath, 0o755);
             }
 
-            console.log(`Downloaded Whisper binary to ${binaryPath}`);
+            console.log(`\nDownloaded Whisper binary to ${binaryPath}`);
             resolve();
           });
         })
@@ -378,14 +389,12 @@ function findWhisperBinary(buildDir) {
   return foundBinary;
 }
 
-// Helper function to follow redirects
+// Helper function to follow redirects and show progress
 function downloadWithRedirects(url, filePath, maxRedirects = 5) {
   return new Promise((resolve, reject) => {
     let redirectCount = 0;
 
     function makeRequest(currentUrl) {
-      console.log(`Downloading from: ${currentUrl}`);
-
       // Parse URL to determine whether to use http or https
       const parsedUrl = new URL(currentUrl);
       const requestLib = parsedUrl.protocol === "https:" ? https : http;
@@ -413,7 +422,6 @@ function downloadWithRedirects(url, filePath, maxRedirects = 5) {
             // Handle relative URLs
             const nextUrl = /^https?:\/\//i.test(location) ? location : new URL(location, currentUrl).toString();
 
-            console.log(`Following redirect to: ${nextUrl}`);
             return makeRequest(nextUrl);
           }
 
@@ -422,13 +430,26 @@ function downloadWithRedirects(url, filePath, maxRedirects = 5) {
             return reject(new Error(`Download failed with status code: ${res.statusCode}`));
           }
 
+          const totalBytes = parseInt(res.headers["content-length"], 10);
+          let downloadedBytes = 0;
+
           // Create write stream and pipe response to it
           const fileStream = fs.createWriteStream(filePath);
           res.pipe(fileStream);
 
+          res.on("data", (chunk) => {
+            downloadedBytes += chunk.length;
+            const percent = ((downloadedBytes / totalBytes) * 100).toFixed(2);
+            process.stdout.clearLine();
+            process.stdout.cursorTo(0);
+            process.stdout.write(`Progress: ${percent}%`);
+          });
+
           fileStream.on("finish", () => {
             fileStream.close();
-            console.log(`Downloaded to ${filePath}`);
+            process.stdout.clearLine();
+            process.stdout.cursorTo(0);
+            console.log(`Successfully downloaded to ${filePath}`);
             resolve();
           });
 
@@ -465,7 +486,6 @@ async function downloadModel() {
 
     // Use our new function that follows redirects
     await downloadWithRedirects(modelUrl, modelPath);
-    console.log(`Successfully downloaded model to ${modelPath}`);
   } catch (error) {
     console.error("Error with direct download:", error);
     console.log("Trying alternative download method...");
@@ -511,6 +531,9 @@ async function downloadModel() {
         fs.mkdirSync(modelsDir, { recursive: true });
       }
     }
+  } finally {
+    // Terminate the process to return control to the terminal
+    process.exit(0);
   }
 }
 

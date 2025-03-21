@@ -18,8 +18,9 @@
     "check-whisper-source": "node scripts/check-whisper-source.js",
     "test-transcription": "node scripts/test-transcription.js",
     "create-launcher": "node scripts/create-launcher.js",
-    "setup": "node scripts/download-whisper-binary.js",
-    "postinstall": "npm run setup"
+    "setup": "npm run check-prereqs && node scripts/download-whisper-binary.js",
+    "postinstall": "npm run setup",
+    "check-prereqs": "node scripts/check-prerequisites.js"
   },
   "build": {
     "appId": "com.electron.transcription-app",
